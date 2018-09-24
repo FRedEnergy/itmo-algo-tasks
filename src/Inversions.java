@@ -17,15 +17,14 @@ public class Inversions {
             a[i] = scan.nextInt();
         scan.close();
 
-        int count = countMergeSort(a, new int[n], 0, a.length - 1);
+        long count = countMergeSort(a, new int[n], 0, a.length - 1);
 
         PrintWriter p = new PrintWriter(new FileOutputStream("inversions.out"));
         p.append(String.valueOf(count));
         p.close();
-
     }
 
-    static int countMergeSort(int[] a, int[] b, int left, int right){
+    static long countMergeSort(int[] a, int[] b, int left, int right){
         if(right <= left) return 0;
 
         int mid = (right + left) / 2;
@@ -34,11 +33,11 @@ public class Inversions {
             countMerge(a, b, left, mid + 1, right);
     }
 
-    static int countMerge(int[] a, int b[], int left, int mid, int right){
+    static long countMerge(int[] a, int b[], int left, int mid, int right){
         int l = left;
         int m = mid;
         int bl = left;
-        int count = 0;
+        long count = 0;
 
         while (l <= mid - 1 && m <= right){
             if(a[l] <= a[m]) {
