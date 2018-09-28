@@ -1,37 +1,31 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class AntiQSort {
 
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
+    public static void main(String[] args) throws FileNotFoundException {
+        Scanner scan = new Scanner(new FileInputStream("antiqs.in"));
         int n = scan.nextInt();
+        scan.close();
 
+        int[] a = new int[n];
+        if(n > 0) a[0] = 1;
+        if(n > 1) a[1] = 2;
 
-    }
-
-    static void qsort(int[] a, int l, int r){
-        int k = (l + r) / 2;
-        int key = a[k];
-        int i = l;
-        int j = r;
-        while(i <= j){
-            while(a[i] < key)
-                i++;
-            while(key < a[j])
-                j--;
-
-            if(i <= j){
-                int t = a[i];
-                a[i] = a[j];
-                a[j] = t;
-                i++;
-                j--;
-            }
+        for(int i = 3; i <= a.length; i++){
+            int key = (i - 1) / 2;
+            int t = a[key];
+            a[key] = i;
+            a[i - 1] = t;
         }
 
-        if(l < j)
-            qsort(a, l, j);
-        if(i < r)
-            qsort(a, i, r);
+        PrintWriter out = new PrintWriter(new FileOutputStream("antiqs.out"));
+        for (int i = 0; i < a.length; i++)
+            out.append(a[i] + " ");
+        out.close();
+
     }
 }

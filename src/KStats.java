@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class KStats  {
+public class KStats {
 
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -19,74 +19,49 @@ public class KStats  {
         a[0] = scan.nextInt();
         a[1] = scan.nextInt();
 
-        for(int i = 2; i < n; i++)
+        for (int i = 2; i < n; i++)
             a[i] = A * a[i - 2] + B * a[i - 1] + C;
 
-        int left = 0;
-        int right = a.length;
-        int result = 0;
-        while (true){
-            int key = partition(a, left, right -1 );
-            if(key == k) {
-                result = a[key];
-                break;
-            } else if(k < key){
-                right = key;
-            } else {
-                k -= key + 1;
-                left = key + 1;
-            }
-        }
-
+        System.out.println(Arrays.toString(a));
+        orderStatistic(a, 0, a.length, k);
+        int result = a[k];
+        System.out.println(result + " at " + Arrays.toString(a));
 
         PrintWriter out = new PrintWriter(new FileOutputStream("kth.out"));
         out.append(String.valueOf(result));
         out.close();
     }
 
-    static int partition(int[] a, int l, int r){
-        int v = a[(l + r) / 2];
-        int i = l;
-        int j = r;
-        while (i <= j){
-            while(a[i] < v)
-                i++;
-            while (a[j] > v)
-                j--;
-            if(i >= j)
-                break;
-
-            int t = a[i];
-            a[i] = a[j];
-            a[j] = t;
-            i++;
-            j--;
-        }
-        return j;
+    public static void swap(int[] a, int i, int j){
+        int t = a[i];
+        a[i] = a[j];
+        a[j] = t;
     }
 
-//    static Random rand = new Random();
-//    static int partition(int[] a, int l, int r) {
-//        int k = (l + r) / 2;///(r - l > 0 ? rand.nextInt(r - l) : 0) + l;
-//        int key = a[k];
-//        int i = l;
-//        int j = r;
-//        while (i <= j) {
-//            while (a[i] < key)
-//                i++;
-//            while (key < a[j])
-//                j--;
-//
-//            if (i <= j) {
-//                int t = a[i];
-//                a[i] = a[j];
-//                a[j] = t;
-//                i++;
-//                j--;
-//            }
-//        }
-//        return k;
-//    }
+
+    static int partition(int[] a, int l, int r) {
+        Random rand = new Random();
+        swap(a, l + (r - l > 0 ? rand.nextInt(r - l) : 0), r - 1);
+        int key = a[r - 1];
+        int i = r - 1;
+        for(int j = l; j < r; j++)
+            if(a[j] < key)
+                swap(a, j, i);
+
+        return i;
+    }
+
+    static void orderStatistic(int[] array, int left, int right, int n) {
+       while(true){
+           int k = partition(array, left, right);
+           if(n < k)
+               right = k;
+           else if(n > k)
+               left = k + 1;
+           else
+               return;
+       }
+    }
 
 
     static class FastScanner {
