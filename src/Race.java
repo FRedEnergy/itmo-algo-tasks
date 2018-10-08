@@ -18,11 +18,10 @@ public class Race {
             countryRacers.add(racer);
         }
         List<String> countries = new ArrayList<>(racers.keySet());
-        countries.sort(Comparator.naturalOrder());
+        qsort(countries, 0, countries.size() - 1);
 
         for (String key : countries) {
             List<Racer> countryRacers = racers.get(key);
-            qsort(countryRacers, 0, countryRacers.size() - 1);
             out.append("=== " + key + " ===\n");
             for (int i = 0; i < countryRacers.size(); i++) {
                 out.append(countryRacers.get(i).name + "\n");
@@ -30,6 +29,33 @@ public class Race {
         }
 
         out.close();
+    }
+
+    static Random rand = new Random();
+    static void qsort(List<String> a, int l, int r){
+        int k = ((r - l) <= 0 ? 0 : rand.nextInt(r - l)) + l;
+        String key = a.get(k);
+        int i = l;
+        int j = r;
+        while(i <= j){
+            while(a.get(i).compareTo(key) < 0)
+                i++;
+            while(key.compareTo(a.get(j)) < 0)
+                j--;
+
+            if(i <= j){
+                String t = a.get(i);
+                a.set(i, a.get(j));
+                a.set(j, t);
+                i++;
+                j--;
+            }
+        }
+
+        if(l < j)
+            qsort(a, l, j);
+        if(i < r)
+            qsort(a, i, r);
     }
 
     static class Racer{
@@ -86,35 +112,6 @@ public class Race {
         }
     }
 
-    static int getKey(List<Racer> racers, int i){
-        return racers.get(i).place;
-    }
 
-    static Random rand = new Random();
-    static void qsort(List<Racer> a, int l, int r){
-        int k = ((r - l) <= 0 ? 0 : rand.nextInt(r - l)) + l;
-        int key = getKey(a, k);
-        int i = l;
-        int j = r;
-        while(i <= j){
-            while(getKey(a, i) < key)
-                i++;
-            while(key < getKey(a, j))
-                j--;
-
-            if(i <= j){
-                Racer t = a.get(i);
-                a.set(i, a.get(j));
-                a.set(j, t);
-                i++;
-                j--;
-            }
-        }
-
-        if(l < j)
-            qsort(a, l, j);
-        if(i < r)
-            qsort(a, i, r);
-    }
 
 }
