@@ -1,3 +1,4 @@
+
 import java.io.*;
 import java.util.*;
 
@@ -9,32 +10,31 @@ public class Race {
     public static void main(String[] args) {
         setup("race.in", "race.out");
 
+
         int n = in.nextInt();
-        Map<String, List<Racer>> racers = new HashMap<>();
+        List<Racer> racers = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             Racer racer = new Racer(in.next(), in.next(), i);
-            List<Racer> countryRacers = racers
-                    .computeIfAbsent(racer.country, t -> new ArrayList<>());
-            countryRacers.add(racer);
+            racers.add(racer);
         }
-        List<String> countries = new ArrayList<>(racers.keySet());
-        qsort(countries, 0, countries.size() - 1);
+        qsort(racers, 0, racers.size() - 1);
 
-        for (String key : countries) {
-            List<Racer> countryRacers = racers.get(key);
-            out.append("=== " + key + " ===\n");
-            for (int i = 0; i < countryRacers.size(); i++) {
-                out.append(countryRacers.get(i).name + "\n");
+        String prevCountry = null;
+        for (Racer racer : racers) {
+            if(!Objects.equals(racer.country, prevCountry)) {
+                prevCountry = racer.country;
+                out.append("=== " + prevCountry + " ===\n");
             }
+            out.append(racer.name + "\n");
         }
 
         out.close();
     }
 
     static Random rand = new Random();
-    static void qsort(List<String> a, int l, int r){
+    static void qsort(List<Racer> a, int l, int r){
         int k = ((r - l) <= 0 ? 0 : rand.nextInt(r - l)) + l;
-        String key = a.get(k);
+        Racer key = a.get(k);
         int i = l;
         int j = r;
         while(i <= j){
@@ -44,7 +44,7 @@ public class Race {
                 j--;
 
             if(i <= j){
-                String t = a.get(i);
+                Racer t = a.get(i);
                 a.set(i, a.get(j));
                 a.set(j, t);
                 i++;
@@ -58,7 +58,7 @@ public class Race {
             qsort(a, i, r);
     }
 
-    static class Racer{
+    static class Racer implements Comparable<Racer>{
         final String country;
         final String name;
         final int place;
@@ -67,6 +67,14 @@ public class Race {
             this.country = country;
             this.name = name;
             this.place = place;
+        }
+
+        @Override
+        public int compareTo(Racer o) {
+            int l = country.compareTo(o.country);
+            if(l != 0)
+                return l;
+            return Integer.compare(place, o.place);
         }
     }
 
