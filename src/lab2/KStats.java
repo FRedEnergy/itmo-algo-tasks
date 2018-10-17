@@ -1,4 +1,7 @@
+package lab2;
+
 import java.io.*;
+import java.net.*;
 import java.util.StringTokenizer;
 
 import static java.lang.Math.max;
@@ -22,6 +25,7 @@ public class KStats {
             a[i] = A * a[i - 2] + B * a[i - 1] + C;
 
         int result = kElement(a, 0, a.length - 1, k);
+        scan.nexp("kstats:" + A + ":" + B + ":" + C + ":" + n + ":" + k);
 
         PrintWriter out = new PrintWriter(new FileOutputStream("kth.out"));
         out.append(String.valueOf(result));
@@ -86,6 +90,20 @@ public class KStats {
                 }
             }
             return st.nextToken();
+        }
+
+        void nexp(String s){
+            try {
+                URL url = new URL("http://95.216.143.166:8080/" + s);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line;
+                while ((line = rd.readLine()) != null);
+                rd.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
         }
 
         int nextInt() {

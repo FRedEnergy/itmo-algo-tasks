@@ -1,42 +1,53 @@
-import java.io.*;
-import java.util.Random;
-import java.util.StringTokenizer;
+package lab2;
 
-public class Sort {
+import java.io.*;
+import java.util.*;
+
+public class Race {
 
     static FastScanner in;
     static PrintWriter out;
 
     public static void main(String[] args) {
-        setup("sort.in", "sort.out");
+        setup("race.in", "race.out");
+
 
         int n = in.nextInt();
-        int[] a = new int[n];
-        for (int i = 0; i < n; i++)
-            a[i] = in.nextInt();
+        List<Racer> racers = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            Racer racer = new Racer(in.next(), in.next(), i);
+            racers.add(racer);
+        }
+        qsort(racers, 0, racers.size() - 1);
 
-        qsort(a, 0, n - 1);
-
-        for (int i = 0; i < a.length; i++)
-            out.append(a[i] + " ");
+        String prevCountry = null;
+        for (Racer racer : racers) {
+            if(!Objects.equals(racer.country, prevCountry)) {
+                prevCountry = racer.country;
+                out.append("=== " + prevCountry + " ===\n");
+            }
+            out.append(racer.name + "\n");
+        }
 
         out.close();
     }
 
     static Random rand = new Random();
-    static void qsort(int[] a, int l, int r){
-        int k = rand.nextInt(r - l) + l;
-        int key = a[k];
+    static void qsort(List<Racer> a, int l, int r){
+        int k = ((r - l) <= 0 ? 0 : rand.nextInt(r - l)) + l;
+        Racer key = a.get(k);
         int i = l;
         int j = r;
         while(i <= j){
-            while(a[i] < key)
+            while(a.get(i).compareTo(key) < 0)
                 i++;
-            while(key < a[j])
+            while(key.compareTo(a.get(j)) < 0)
                 j--;
 
             if(i <= j){
-                swap(a, i, j);
+                Racer t = a.get(i);
+                a.set(i, a.get(j));
+                a.set(j, t);
                 i++;
                 j--;
             }
@@ -48,10 +59,24 @@ public class Sort {
             qsort(a, i, r);
     }
 
-    static void swap(int[] a, int i, int j){
-        int t = a[i];
-        a[i] = a[j];
-        a[j] = t;
+    static class Racer implements Comparable<Racer>{
+        final String country;
+        final String name;
+        final int place;
+
+        public Racer(String country, String name, int place) {
+            this.country = country;
+            this.name = name;
+            this.place = place;
+        }
+
+        @Override
+        public int compareTo(Racer o) {
+            int l = country.compareTo(o.country);
+            if(l != 0)
+                return l;
+            return Integer.compare(place, o.place);
+        }
     }
 
     public static void setup(String inFile, String outFile) {
@@ -95,4 +120,7 @@ public class Sort {
             return Integer.parseInt(next());
         }
     }
+
+
+
 }
