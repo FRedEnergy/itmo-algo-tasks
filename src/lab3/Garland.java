@@ -1,49 +1,61 @@
 package lab3;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Garland {
 
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
+    public static void main(String[] args) throws FileNotFoundException {
+        Scanner scan = new Scanner(new FileInputStream("garland.in"));
         int n = scan.nextInt();
-        float high = scan.nextFloat();
-        float low = 0F;
+        double firstHeight = scan.nextDouble();
 
-        //h[i] = h[0] * i - h[0] * (i - 1) + i * (i - 1)
+        double low = 0.0;
+        double high = firstHeight;
 
         while(true){
-            float mid = (high + low) / 2F;
-            System.out.println("High = " + high + ", low " + low + ", mid = " + mid);
+            double mid = (high + low) / 2.0;
             if(mid == low || high == mid)
                 break;
-            if(onGround(n, high, low)){
-                high = mid;
-                System.out.println("too low");
-            } else {
+
+            if(isTooLow(n, firstHeight, mid))
                 low = mid;
-            }
+            else
+                high = mid;
+
         }
 
+        double result = findBulbHeight(n, firstHeight, high);
 
-        System.out.println("High = " + high + ", low " + low);
+        PrintWriter out = new PrintWriter("garland.out");
+        out.append(String.format("%.2f", result));
+        out.close();
+    }
+
+    private static double findLowestBulb(int idx, double firstHeight, double startHeight){
+        for(int i = 3; i <= idx; i++){
+            double next = startHeight + 1 - firstHeight / 2F;
+            firstHeight = startHeight;
+            startHeight = next * 2F;
+            if(startHeight < 0)
+                return startHeight;
+        }
+        return startHeight;
+    }
+
+    private static double findBulbHeight(int idx, double firstHeight, double startHeight){
+        for(int i = 3; i <= idx; i++){
+            double next = startHeight + 1 - firstHeight / 2.0;
+            firstHeight = startHeight;
+            startHeight = next * 2.0;
+        }
+        return startHeight;
 
     }
 
-    private static float getHeight(int i, float h0, float h1){
-        float n = i;
-        return h1 * n - h0 * (n - 1) + n * (n - 1);
-    }
-
-    private static boolean onGround(int idx, double max, double low) {
-        double mid = low;
-        for (int i = 3; i <= idx; i++) {
-            double prev = mid;
-            mid = 2 * (mid + 1) - max; //will be zero if mid < max
-            max = prev;
-            if (mid < 0)
-                return false;
-        }
-        return true;
+    private static boolean isTooLow(int idx, double firstHeight, double low) {
+        return findLowestBulb(idx, firstHeight, low) <= 0.0;
     }
 }
