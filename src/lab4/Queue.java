@@ -1,14 +1,13 @@
 package lab4;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Queue {
 
     public static void main(String[] args) throws FileNotFoundException {
-        Scanner scan = new Scanner(new FileInputStream("queue.in"));
+        FastScanner scan = new FastScanner(new File("queue.in"));
         int n = scan.nextInt();
         QueueStruct q = new QueueStruct(n);
 
@@ -20,7 +19,6 @@ public class Queue {
             else
                 out.println(q.pop());
         }
-        scan.close();
         out.close();
     }
 
@@ -40,6 +38,34 @@ public class Queue {
 
         public int pop(){
             return data[++readIndex % data.length];
+        }
+    }
+
+    static class FastScanner {
+        BufferedReader br;
+        StringTokenizer st;
+
+        FastScanner(File f) {
+            try {
+                br = new BufferedReader(new FileReader(f));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String next() {
+            while (st == null || !st.hasMoreTokens()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+
+        int nextInt() {
+            return Integer.parseInt(next());
         }
     }
 }

@@ -13,7 +13,7 @@ public class Brackets {
         PrintWriter out = new PrintWriter("brackets.out");
         while (scan.hasNext()){
             String line = scan.next();
-            char[] stack = new char[line.length()];
+            char[] stack = new char[line.length() + 1];
             int stackIndex = 0;
             boolean isInvalid = false;
             for (int i = 0; i < line.length(); i++) {
@@ -28,7 +28,7 @@ public class Brackets {
                     }
                 }
             }
-            out.println(isInvalid ? "NO" : "YES");
+            out.println((isInvalid || stackIndex != 0) ? "NO" : "YES");
         }
         scan.close();
         out.close();

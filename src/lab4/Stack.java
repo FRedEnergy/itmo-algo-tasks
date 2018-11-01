@@ -1,14 +1,12 @@
 package lab4;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Scanner;
+import java.io.*;
+import java.util.StringTokenizer;
 
 public class Stack {
 
     public static void main(String[] args) throws FileNotFoundException {
-        Scanner scan = new Scanner(new FileInputStream("stack.in"));
+        FastScanner scan = new FastScanner(new File("./stack.in"));
         int n = scan.nextInt();
 
         PrintWriter out = new PrintWriter("stack.out");
@@ -20,7 +18,6 @@ public class Stack {
             else
                 out.println(stack.pop());
         }
-        scan.close();
         out.close();
     }
 
@@ -38,6 +35,38 @@ public class Stack {
 
         public int pop(){
             return data[index--];
+        }
+
+        public boolean isEmpty(){
+            return index == 0;
+        }
+    }
+
+    static class FastScanner {
+        BufferedReader br;
+        StringTokenizer st;
+
+        FastScanner(File f) {
+            try {
+                br = new BufferedReader(new FileReader(f));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String next() {
+            while (st == null || !st.hasMoreTokens()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+
+        int nextInt() {
+            return Integer.parseInt(next());
         }
     }
 }

@@ -1,9 +1,8 @@
 package lab4;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Postfix {
 
