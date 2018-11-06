@@ -2,13 +2,12 @@ package lab5;
 
 import java.io.*;
 
-public class OurMap {
-
+public class OurLinkedMap {
     public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(new File("map.in")));
+        BufferedReader reader = new BufferedReader(new FileReader(new File("linkedmap.in")));
         MapStruct map = new MapStruct(1 << 20);
 
-        PrintWriter out = new PrintWriter("map.out");
+        PrintWriter out = new PrintWriter("linkedmap.out");
         String line;
         while ((line = reader.readLine()) != null){
             String[] in = line.split(" ");
@@ -21,6 +20,20 @@ public class OurMap {
                 out.println(value != null ? value : "none");
             } else if("delete".equals(action)){
                 map.delete(key);
+            } else if("prev".equals(action)){
+                LinkedNode node = map.getNode(key);
+                if(node == null || node.insertedPrev == null){
+                    out.println("none");
+                } else {
+                    out.println(node.insertedPrev.value);
+                }
+            } else if("next".equals(action)){
+                LinkedNode node = map.getNode(key);
+                if(node == null || node.insertedNext == null){
+                    out.println("none");
+                } else {
+                    out.println(node.insertedNext.value);
+                }
             }
         }
         out.close();
@@ -29,6 +42,8 @@ public class OurMap {
 
 
     public static class LinkedNode {
+
+        public LinkedNode insertedPrev, insertedNext;
 
         public LinkedNode prev, next;
         public String key;
@@ -41,6 +56,8 @@ public class OurMap {
     }
 
     public static class MapStruct {
+        public LinkedNode insertTail;
+
         public LinkedNode[] buckets;
         public int size = 0;
 
@@ -55,11 +72,13 @@ public class OurMap {
             return Math.abs(h) % buckets.length;
         }
 
+
         public void put(String key, String value){
             int hash = getHash(key);
             LinkedNode bucket = buckets[hash];
             if(bucket == null) {
                 buckets[hash] = new LinkedNode(key, value);
+                attachInsertNode(buckets[hash]);
                 size++;
                 return;
             }
@@ -68,14 +87,23 @@ public class OurMap {
                     bucket.value = value;
                     break;
                 } else if(bucket.next == null) {
-                    bucket.next = new LinkedNode(key, value);
+                    LinkedNode newNode = new LinkedNode(key, value);
+                    bucket.next = newNode;
                     bucket.next.prev = bucket;
+                    attachInsertNode(newNode);
                     size++;
                     break;
                 } else {
                     bucket = bucket.next;
                 }
             }
+        }
+
+        private void attachInsertNode(LinkedNode newNode) {
+            if(insertTail != null)
+                insertTail.insertedNext = newNode;
+            newNode.insertedPrev = insertTail;
+            insertTail = newNode;
         }
 
         public String get(String key){
@@ -86,6 +114,19 @@ public class OurMap {
             while (bucket != null){
                 if(bucket.key.equals(key))
                     return bucket.value;
+                bucket = bucket.next;
+            }
+            return null;
+        }
+
+        public LinkedNode getNode(String key){
+            if(size <= 0)
+                return null;
+
+            LinkedNode bucket = buckets[getHash(key)];
+            while (bucket != null){
+                if(bucket.key.equals(key))
+                    return bucket;
                 bucket = bucket.next;
             }
             return null;
@@ -109,6 +150,17 @@ public class OurMap {
                         bucket.prev.next = bucket.next;
                         bucket.next.prev = bucket.prev;
                     }
+                    if(bucket.insertedPrev == null && bucket.insertedNext == null){
+                        insertTail = null;
+                    } else if(bucket.insertedPrev == null){
+                        bucket.insertedNext.insertedPrev = null;
+                    } else if(bucket.insertedNext == null){
+                        bucket.insertedPrev.insertedNext = null;
+                        insertTail = bucket.insertedPrev;
+                    } else {
+                        bucket.insertedPrev.insertedNext = bucket.insertedNext;
+                        bucket.insertedNext.insertedPrev = bucket.insertedPrev;
+                    }
                     size--;
                     return;
                 } else {
@@ -117,5 +169,6 @@ public class OurMap {
             }
         }
     }
+
 
 }

@@ -46,6 +46,13 @@ public class Multimap {
         out.println();
     }
 
+    public static int getStringHash(String x){
+        int h = 0;
+        for(int i = 0; i < x.length(); i++)
+            h = 31 * h + x.charAt(i);
+        return Math.abs(h);
+    }
+
     public static class LinkedSetNode {
 
         public LinkedSetNode prev, next;
@@ -65,7 +72,7 @@ public class Multimap {
         }
 
         public int getHash(String value){
-            return Math.abs(value.hashCode()) % buckets.length;
+            return getStringHash(value) % buckets.length;
         }
 
         public boolean contains(String value){
@@ -151,19 +158,7 @@ public class Multimap {
         }
 
         public int getHash(String x){
-            return Math.abs(x.hashCode()) % buckets.length;
-        }
-
-        public boolean contains(String key){
-            if(size <= 0)
-                return false;
-            LinkedMapNode bucket = buckets[getHash(key)];
-            while (bucket != null){
-                if(bucket.key.equals(key))
-                    return true;
-                bucket = bucket.next;
-            }
-            return false;
+            return getStringHash(x) % buckets.length;
         }
 
         public void put(String key, String value){
