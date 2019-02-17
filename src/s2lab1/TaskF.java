@@ -6,6 +6,8 @@ import java.util.*;
 
 public class TaskF {
 
+    private static int MAX = Integer.MAX_VALUE - 1;
+
     public static void main(String[] args) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("input.txt"));
 
@@ -32,93 +34,93 @@ public class TaskF {
             }
         }
 
-        int goalX = map.getX(end);
-        int goalY = map.getY(end);
+        int n = w * h;
+        map.get(start).distance = 0;
+        for(int i = 0; i < n; i++){
+            if(map.isWall(i))
+                continue;
 
-        int[] temp = new int[]{-1, 0, 0, 0};
-
-        PriorityQueue<Integer> q = new PriorityQueue<>(Comparator.comparing(a -> {
-            int x = map.getX(a);
-            int y = map.getY(a);
-            String data = map.get(x, y);
-            return data.length() + Math.abs(goalX - x) + Math.abs(goalY - y);
-        }));
-        map.set(map.getX(start), map.getY(start), "");
-        q.offer(start);
-        outer: while (!q.isEmpty()){
-            int source = q.poll();
-            int sourceX = map.getX(source);
-            int sourceY = map.getY(source);
-
-            String sourceNode = map.get(sourceX, sourceY);
-
-            getAdjacentTiles(map, source, temp);
-            for (int adjacent : temp) {
-                if(adjacent == -1)
-                    break;
-
-                int x = map.getX(adjacent);
-                int y = map.getY(adjacent);
-                String mapNode = map.get(x, y);
-
-                if(mapNode != null && mapNode.length() < sourceNode.length() + 1)
+            MapNode node = null;
+            for(int j = 0; j < n; j++) {
+                MapNode another = map.get(j);
+                if(another.isVisited)
                     continue;
-                else
-                    q.remove(adjacent);
 
-                Side move = null;
-                if(sourceX < x)
-                    move = Side.RIGHT;
-                if(sourceY < y)
-                    move = Side.DOWN;
-                if(sourceX > x)
-                    move = Side.LEFT;
-                if(sourceY > y)
-                    move = Side.UP;
+                if (node == null || another.distance < node.distance)
+                    node = another;
+            }
 
-                String node = sourceNode + move.display;
+            if(node == null || node.distance == MAX) break;
+            node.isVisited = true;
 
-                map.set(x, y, node);
-                if(adjacent == end)
-                    break outer;
+            for(int adjPos: getAdjacentTiles(map, node.pos)){
+                MapNode adj = map.get(adjPos);
 
-                q.offer(adjacent);
+                if(node.distance + 1 < adj.distance){
+                    adj.distance = node.distance + 1;
+                    adj.parent = node;
+                }
             }
         }
 
-        PrintWriter out = new PrintWriter("output.txt");
-        String smallestPath = map.get(map.getX(end), map.getY(end));
+        MapNode endNode = map.get(end);
+        int endDistance = endNode.distance;
 
-        if(smallestPath == null){
+        PrintWriter out = new PrintWriter("output.txt");
+
+        if(endDistance == MAX){
             out.print("-1");
             out.close();
             return;
         }
 
-        out.println(smallestPath.length());
-        out.println(smallestPath);
+        char[] path = new char[endDistance];
+        int i = endDistance - 1;
+        MapNode v = endNode;
+
+        while (i >= 0){
+            int source = v.parent.pos;
+            int sourceX = map.getX(source);
+            int sourceY = map.getY(source);
+            int x = map.getX(v.pos);
+            int y = map.getY(v.pos);
+
+            path[i--] = getMovement(sourceX, sourceY, x, y).display;
+            v = v.parent;
+        }
+
+        out.println(endDistance);
+        out.println(new String(path));
         out.close();
     }
 
-    private static void getAdjacentTiles(Map map, int source, int[] nodes){
+    private static Side getMovement(int sourceX, int sourceY, int x, int y) {
+        Side move = null;
+        if(sourceX < x) move = Side.RIGHT;
+        if(sourceY < y) move = Side.DOWN;
+        if(sourceX > x) move = Side.LEFT;
+        if(sourceY > y) move = Side.UP;
+        return move;
+    }
+
+    private static List<Integer> getAdjacentTiles(Map map, int source){
         int x = map.getX(source);
         int y = map.getY(source);
-        int i = 0;
+        List<Integer> result = new ArrayList<>(4);
 
         if(!map.isWall(x - 1, y))
-            nodes[i++] = (map.ind(x - 1, y));
+            result.add(map.ind(x - 1, y));
 
         if(!map.isWall(x + 1, y))
-            nodes[i++] = (map.ind(x + 1, y));
+            result.add(map.ind(x + 1, y));
 
         if(!map.isWall(x, y - 1))
-            nodes[i++] = (map.ind(x, y - 1));
+            result.add(map.ind(x, y - 1));
 
         if(!map.isWall(x, y + 1))
-            nodes[i++] = (map.ind(x, y + 1));
+            result.add(map.ind(x, y + 1));
 
-        if(i != nodes.length)
-            nodes[i] = -1;
+        return result;
     }
 
     private enum Side {
@@ -134,21 +136,32 @@ public class TaskF {
         }
     }
 
+    private static class MapNode {
+
+        final int pos;
+        int distance = MAX;
+        MapNode parent = null;
+        boolean isVisited = false;
+
+        MapNode(int pos) {
+            this.pos = pos;
+        }
+    }
 
     private static class Map {
 
         private int w, h;
         private boolean level[];
-        private String[] data;
+        private MapNode[] data;
 
-        public Map(int w, int h){
+        Map(int w, int h){
             this.w = w;
             this.h = h;
             this.level = new boolean[w * h];
-            this.data = new String[w * h];
+            this.data = new MapNode[w * h];
         }
 
-        public void setWall(int x, int y){
+        void setWall(int x, int y){
             level[x + y * w] = true;
         }
 
@@ -159,23 +172,28 @@ public class TaskF {
             return level[x + y * w];
         }
 
-        public String get(int x, int y){
-            return data[ind(x, y)];
+        boolean isWall(int v){
+            if(v < 0 || v >= (w * h))
+                return true;
+
+            return level[v];
         }
 
-        public void set(int x, int y, String node){
-            data[ind(x, y)] = node;
+        public MapNode get(int v){
+            MapNode d = data[v];
+            if(d != null) return d;
+            return data[v] = new MapNode(v);
         }
 
-        public int ind(int x, int y){
+        int ind(int x, int y){
             return x + y * w;
         }
 
-        public int getX(int ind){
+        int getX(int ind){
             return ind % w;
         }
 
-        public int getY(int ind){
+        int getY(int ind){
             return ind / w;
         }
 
