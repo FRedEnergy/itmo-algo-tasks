@@ -37,13 +37,13 @@ public class TaskF {
         int n = w * h;
         map.get(start).distance = 0;
         for(int i = 0; i < n; i++){
-            if(map.isWall(i))
-                continue;
-
             MapNode node = null;
             for(int j = 0; j < n; j++) {
                 MapNode another = map.get(j);
                 if(another.isVisited)
+                    continue;
+
+                if(map.isWall(j))
                     continue;
 
                 if (node == null || another.distance < node.distance)
