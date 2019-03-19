@@ -26,7 +26,7 @@ public class MST3 {
             edges[i] = new Edge(origin, end, scan.nextInt());
         }
 
-        int sum = 0;
+        long sum = 0;
 
         Arrays.sort(edges);
         for (int i = 0; i < m; i++) {
@@ -81,9 +81,9 @@ public class MST3 {
     private static class Edge implements Comparable<Edge>{
 
         public Node origin, end;
-        public int w;
+        public long w;
 
-        public Edge(Node origin, Node end, int w) {
+        public Edge(Node origin, Node end, long w) {
             this.origin = origin;
             this.end = end;
             this.w = w;
